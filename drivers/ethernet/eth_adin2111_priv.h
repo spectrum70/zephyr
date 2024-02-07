@@ -13,6 +13,7 @@
 #include <zephyr/drivers/spi.h>
 #include <zephyr/net/net_if.h>
 #include <ethernet/eth_stats.h>
+#include "oa_tc6.h"
 
 /* SPI frequency maximum, based on clock cycle time */
 #define ADIN2111_SPI_MAX_FREQUENCY		25000000U
@@ -33,6 +34,8 @@
 #define ADIN2111_CONFIG0_SYNC			BIT(15)
 /* Transmit Frame Check Sequence Validation Enable */
 #define ADIN2111_CONFIG0_TXFCSVE		BIT(14)
+/* Zero Align Receive Frame Enable */
+#define ADIN2111_CONFIG0_ZARFE			BIT(12)
 /* Transmit Cut Through Enable */
 #define ADIN2111_CONFIG0_TXCTE			BIT(9)
 /* Receive Cut Through Enable. Must be 0 for Generic SPI */
@@ -72,9 +75,15 @@
 #define ADIN2111_STATUS1_SPI_ERR		BIT(10)
 /* Port 1 RX FIFO Contains Data */
 #define ADIN2111_STATUS1_P1_RX_RDY		BIT(4)
+/* Frame transmitted */
+#define ADIN2111_STATUS1_TX_RDY			BIT(3)
 /* Value to completely clear status register 1 */
 #define ADIN2111_STATUS1_CLEAR			0xFFF01F08U
 
+/* Buffer Status Register */
+#define ADIN2111_BUFSTS				0x0BU
+/* Tx credits */
+#define ADIN2111_BUFSTS_TXC			GENMASK(15, 8)
 
 /* Interrupt Mask Register 0 */
 #define ADIN2111_IMASK0				0x0CU
@@ -180,6 +189,8 @@ struct adin2111_data {
 	uint32_t imask1;
 	uint16_t ifaces_left_to_init;
 	uint8_t *buf;
+	struct oa_tc6 *tc6;
+	struct gpio_dt_spec cs_gpio;
 
 	K_KERNEL_STACK_MEMBER(rx_thread_stack, CONFIG_ETH_ADIN2111_IRQ_THREAD_STACK_SIZE);
 	struct k_thread rx_thread;

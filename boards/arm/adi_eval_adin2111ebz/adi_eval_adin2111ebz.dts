@@ -169,6 +169,8 @@
 		spi-max-frequency = <25000000>;
 		int-gpios = <&gpioa 12 GPIO_ACTIVE_LOW>;
 		status = "okay";
+		spi-oa;
+		spi-oa-protection;
 
 		port1 {
 			local-mac-address = [ 00 E0 22 FE DA C9 ];

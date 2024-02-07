@@ -49,6 +49,24 @@ config ETH_ADIN2111_SPI_CFG0
 	  Must be set when ADIN uses 8-bit CRC (Generic SPI)
 	  or Protection Mode (OPEN Alliance) on the SPI Host Interface.
 
+DT_ETH_ADIN2111_PATH := $(dt_nodelabel_path,adin2111)
+DT_ETH_ADIN2111_SPI_OA := $(dt_node_bool_prop,$(DT_ETH_ADIN2111_PATH),spi-oa)
+
+config ETH_ADIN2111_SPI_OA
+	bool "SPI_OA"
+	default $(DT_ETH_ADIN2111_SPI_OA)
+	help
+	  Must be set when Open Alliance SPI is configured by HW bootstrap deep-switches.
+
+DT_ETH_ADIN2111_SPI_OA_PROTECTION := $(dt_node_bool_prop,$(DT_ETH_ADIN2111_PATH),spi-oa-protection)
+
+config ETH_ADIN2111_SPI_OA_PROTECTION
+	bool "SPI_OA_PROTECTION"
+	default $(DT_ETH_ADIN2111_SPI_OA_PROTECTION)
+	depends on $(DT_ETH_ADIN2111_SPI_OA)
+	help
+	  Must be set when Open Alliance SPI protection is configured by HW bootstrap deep-switches.
+
 config ETH_ADIN2111_BUFFER_SIZE
 	int "Buffer size in bytes use for frame transmission"
 	default 1524
