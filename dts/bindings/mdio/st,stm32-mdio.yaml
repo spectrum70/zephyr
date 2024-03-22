@@ -1,0 +1,16 @@
+# Copyright 2024 BayLibre, SAS
+# Copyright 2010-2024 Analog Devices Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+description: ST MDIO Features
+
+compatible: "st,stm32-mdio"
+
+include: [mdio-controller.yaml, pinctrl-device.yaml]
+
+properties:
+  pinctrl-0:
+    required: true
+
+  pinctrl-names:
+    required: true
