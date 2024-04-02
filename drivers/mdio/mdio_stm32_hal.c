@@ -69,6 +69,48 @@ static int mdio_stm32_write(const struct device *dev, uint8_t prtad,
 	return ret;
 }
 
+static int mdio_stm32_read_c45(const struct device *dev, uint8_t phyad, uint8_t devad,
+			       uint16_t regad, uint16_t *data)
+{
+	struct mdio_stm32_data *const dev_data = dev->data;
+	ETH_HandleTypeDef *hmdio = &dev_data->hmdio;
+	uint32_t read;
+	int ret;
+
+	k_sem_take(&dev_data->sem, K_FOREVER);
+
+	ret = HAL_ETH_ReadPHYRegister_c45(hmdio, phyad, devad, regad, &read);
+
+	k_sem_give(&dev_data->sem);
+
+	if (ret != HAL_OK)
+		return -EIO;
+
+	*data = read & 0xffff;
+
+	return ret;
+}
+
+static int mdio_stm32_write_c45(const struct device *dev, uint8_t phyad, uint8_t devad,
+				uint16_t regad, uint16_t data)
+{
+	struct mdio_stm32_data *const dev_data = dev->data;
+	ETH_HandleTypeDef *hmdio = &dev_data->hmdio;
+	int ret;
+
+	k_sem_take(&dev_data->sem, K_FOREVER);
+
+	ret = HAL_ETH_WritePHYRegister_c45(hmdio, phyad, devad, regad, data);
+
+	k_sem_give(&dev_data->sem);
+
+	if (ret != HAL_OK)
+		return -EIO;
+
+	return ret;
+}
+
+
 static void mdio_stm32_bus_enable(const struct device *dev)
 {
 	ARG_UNUSED(dev);
@@ -98,6 +140,8 @@ static int mdio_stm32_init(const struct device *dev)
 static const struct mdio_driver_api mdio_stm32_api = {
 	.read = mdio_stm32_read,
 	.write = mdio_stm32_write,
+	.read_c45 = mdio_stm32_read_c45,
+	.write_c45 = mdio_stm32_write_c45,
 	.bus_enable = mdio_stm32_bus_enable,
 	.bus_disable = mdio_stm32_bus_disable,
 };
